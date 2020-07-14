@@ -1,10 +1,12 @@
 import { Router } from "express"
 import notesRoutes from "./notes/notes"
 import foldersRoutes from "./folders/folders"
+import userRoutes from "./user/user"
 
 const router = Router()
 
 router.use("/notes", notesRoutes)
 router.use("/folders", foldersRoutes)
+router.use("/user", userRoutes)
 
 export default router

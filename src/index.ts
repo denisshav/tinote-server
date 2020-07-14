@@ -1,9 +1,12 @@
 import express from "express"
 import mongoose from "mongoose"
 import apiRoutes from "./routes/api/api"
-import notesRoutes from "./routes/api/notes/notes"
+import * as dotenv from "dotenv"
 
-mongoose.connect("mongodb://127.0.0.1:27017/", {
+dotenv.config()
+const app = express()
+
+mongoose.connect(process.env.DB_CONNECT!, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -11,10 +14,9 @@ mongoose.connect("mongodb://127.0.0.1:27017/", {
 const db = mongoose.connection
 db.on("error", console.error.bind(console, "connection error:"))
 db.once("open", function () {
-  console.log("Connected")
+  console.log("Connected to db")
 })
 
-const app = express()
 app.use(express.json())
 app.use("/api", apiRoutes)
 

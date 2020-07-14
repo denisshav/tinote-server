@@ -1,10 +1,8 @@
 import { Router } from "express"
-import Joi from "joi" //used for validation
-import mongoose from "mongoose"
-import { note, noteSchema } from "../../../types/note"
+import { validateNote } from "../../../validation"
+import Note from "../../../models/Note"
 
 const router = Router()
-const Note = mongoose.model("Note", noteSchema)
 
 router.get("/", async (req, res) => {
   res.send(await Note.find({}))
@@ -64,15 +62,5 @@ router.delete("/:id", (req, res) => {
     }
   })
 })
-
-function validateNote(note: note) {
-  const schema = {
-    title: Joi.string().min(3).required(),
-    content: Joi.string().min(0).required(),
-    folder: Joi.string().min(1).required(),
-    date: Joi.date().required(),
-  }
-  return Joi.validate(note, schema)
-}
 
 export default router

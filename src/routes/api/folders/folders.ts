@@ -1,10 +1,8 @@
 import { Router } from "express"
-import Joi from "joi" //used for validation
-import mongoose from "mongoose"
-import { folder, folderSchema } from "../../../types/folder"
+import { validateFolder } from "../../../validation"
+import Folder from "../../../models/Folder"
 
 const router = Router()
-const Folder = mongoose.model("Folder", folderSchema)
 
 router.get("/", async (req, res) => {
   res.send(await Folder.find({}))
@@ -62,14 +60,5 @@ router.delete("/:id", (req, res) => {
     }
   })
 })
-
-function validateFolder(folder: folder) {
-  const schema = {
-    namer: Joi.string().min(3).required(),
-    color: Joi.string().min(0).required(),
-    icon: Joi.string().min(1).required(),
-  }
-  return Joi.validate(folder, schema)
-}
 
 export default router
