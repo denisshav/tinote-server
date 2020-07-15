@@ -6,7 +6,7 @@ export const noteSchema = new mongoose.Schema({
   content: String,
   folder: String,
   date: Date,
-  userId: String
+  userId: String,
 })
 
 const Note = mongoose.model("Note", noteSchema)

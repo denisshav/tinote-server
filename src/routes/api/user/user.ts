@@ -37,7 +37,7 @@ router.post("/register", async (req, res) => {
   }
 })
 
-router.post("/verify", verifyAuth,async (req, res) => {
+router.post("/verify", verifyAuth, async (req, res) => {
   res.status(200).send("Yep")
 })
 

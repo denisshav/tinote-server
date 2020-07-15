@@ -6,11 +6,11 @@ import { verifyAuth } from "../user/verifyToken"
 const router = Router()
 
 router.get("/", verifyAuth, async (req: any, res) => {
-  res.send(await Note.find({userId: req.user._id}))
+  res.send(await Note.find({ userId: req.user._id }))
 })
 
 router.get("/:id", verifyAuth, async (req: any, res) => {
-  res.send(await Note.findById({ _id: req.params.id, userId: req.user._id}))
+  res.send(await Note.findById({ _id: req.params.id, userId: req.user._id }))
 })
 
 router.post("/", verifyAuth, (req: any, res) => {
@@ -24,7 +24,7 @@ router.post("/", verifyAuth, (req: any, res) => {
     content: req.body.content,
     folder: req.body.folder,
     date: req.body.date,
-    userId: req.user._id
+    userId: req.user._id,
   })
   note.save((err, noteItem) => {
     if (err) {
@@ -62,7 +62,7 @@ router.put("/", verifyAuth, async (req: any, res) => {
         _id: {
           $in: req.body.deletedIds,
         },
-        userId: req.user._id
+        userId: req.user._id,
       },
       error => {
         if (error) {
@@ -87,7 +87,7 @@ router.delete("/", verifyAuth, (req: any, res) => {
       _id: {
         $in: req.body.ids,
       },
-      userId: req.user._id
+      userId: req.user._id,
     },
     error => {
       if (error) {

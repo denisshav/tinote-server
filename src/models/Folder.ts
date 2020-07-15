@@ -9,7 +9,7 @@ export const folderSchema = new mongoose.Schema({
   },
   color: String,
   icon: String,
-  userId: String
+  userId: String,
 })
 
 const Folder = mongoose.model("Folder", folderSchema)

@@ -1,5 +1,4 @@
 import Joi from "joi"
-// import { note, folder } from "./types/types"
 
 export const registerValidation = (data: any) => {
   const schema = {
