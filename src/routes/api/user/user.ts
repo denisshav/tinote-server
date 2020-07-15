@@ -26,22 +26,30 @@ router.post("/register", async (req, res) => {
 
   try {
     const savedUser = await user.save()
-    res.send({
-      user: user._id,
-    })
+    const token = jwt.sign(
+      { _id: savedUser.get("_id") },
+      process.env.TOKEN_SECRET!
+    )
+    res.header("auth-token", token).send(token)
   } catch (err) {
     res.status(400).send(err)
   }
 })
 
 router.post("/login", async (req, res) => {
+  console.log("login request")
   const { error } = loginValidation(req.body)
+  console.log(req.body)
   if (error) {
+    console.log("login request error")
+    console.log(req.body)
+    console.log(error.details[0].message)
     return res.status(400).send(error.details[0].message)
   }
 
   const user = await User.findOne({ email: req.body.email })
   if (!user) {
+    console.log("no user")
     return res.status(400).send("Email or password is wrong")
   }
   const validPass = await bcrypt.compare(
@@ -49,6 +57,7 @@ router.post("/login", async (req, res) => {
     user.get("password")
   )
   if (!validPass) {
+    console.log("no valid pass")
     return res.status(400).send("Email or password is wrong")
   }
 
