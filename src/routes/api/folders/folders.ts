@@ -1,18 +1,19 @@
 import { Router } from "express"
 import { validateFolder } from "../../../validation"
 import Folder from "../../../models/Folder"
+import { verifyAuth } from "../user/verifyToken"
 
 const router = Router()
 
-router.get("/", async (req, res) => {
-  res.send(await Folder.find({}))
+router.get("/", verifyAuth, async (req: any, res) => {
+  res.send(await Folder.find({userId: req.user._id}))
 })
 
-router.get("/:id", async (req, res) => {
-  res.send(await Folder.findById({ _id: req.params.id }))
+router.get("/:id", verifyAuth, async (req: any, res) => {
+  res.send(await Folder.findById({ _id: req.params.id, userId: req.user._id }))
 })
 
-router.post("/", (req, res) => {
+router.post("/", verifyAuth, (req: any, res) => {
   const { error } = validateFolder(req.body)
   if (error) {
     res.status(400).send(error.details[0].message)
@@ -23,6 +24,7 @@ router.post("/", (req, res) => {
     content: req.body.content,
     folder: req.body.folder,
     date: req.body.date,
+    userId: req.user._id
   })
   note.save((err, noteItem) => {
     if (err) {
@@ -33,32 +35,67 @@ router.post("/", (req, res) => {
   })
 })
 
-router.put("/:id", async (req, res) => {
-  const { error } = validateFolder(req.body)
-  if (error) {
-    res.status(400).send(error.details[0].message)
-    return
+router.put("/", verifyAuth, async (req: any, res) => {
+  if (!Array.isArray(req.body.docs) || !Array.isArray(req.body.deletedIds)) {
+    return res.status(400).send("Body args aren't arrays")
   }
-
-  const updateRes = await Folder.update(
-    { _id: req.params.id },
-    { title: req.body.title }
-  )
-
-  res.send({
-    modified: updateRes.nModified,
-    matched: updateRes.n,
-  })
+  try {
+    req.body.docs.forEach(async (folder: any) => {
+      const { error } = validateFolder(folder)
+      if (error) {
+        console.log(error)
+        return
+      }
+      await Folder.updateOne(
+        { _id: folder._id, userId: req.user._id },
+        {
+          name: folder.name,
+          color: folder.color,
+          icon: folder.icon,
+        },
+        { upsert: true }
+      )
+    })
+    Folder.deleteMany(
+      {
+        _id: {
+          $in: req.body.deletedIds,
+        },
+        userId: req.user._id
+      },
+      error => {
+        if (error) {
+          console.log(error)
+          res.status(400).send(error.message)
+        } else {
+          res.status(200).send("Yep")
+        }
+      }
+    )
+  } catch (error) {
+    res.status(400).send(error.message)
+  }
 })
 
-router.delete("/:id", (req, res) => {
-  Folder.findOneAndRemove({ _id: req.params.id }, (error, docs) => {
-    if (error) {
-      res.status(400).send(error.message)
-    } else {
-      res.status(200).send(docs)
+router.delete("/", verifyAuth, (req: any, res) => {
+  if (!Array.isArray(req.body.ids)) {
+    return res.status(400).send("Body arg 'ids' isn't array")
+  }
+  Folder.deleteMany(
+    {
+      _id: {
+        $in: req.body.ids,
+      },
+      userId: req.user._id
+    },
+    error => {
+      if (error) {
+        res.status(400).send(error.message)
+      } else {
+        res.status(200).send("Yep")
+      }
     }
-  })
+  )
 })
 
 export default router

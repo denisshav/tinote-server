@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 
 export const folderSchema = new mongoose.Schema({
+  _id: String,
   name: {
     type: String,
     required: true,
@@ -8,6 +9,7 @@ export const folderSchema = new mongoose.Schema({
   },
   color: String,
   icon: String,
+  userId: String
 })
 
 const Folder = mongoose.model("Folder", folderSchema)
