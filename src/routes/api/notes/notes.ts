@@ -1,19 +1,19 @@
 import { Router } from "express"
 import { validateNote } from "../../../validation"
 import Note from "../../../models/Note"
+import { verifyAuth } from "../user/verifyToken"
 
 const router = Router()
 
-router.get("/", async (req, res) => {
-  res.send(await Note.find({}))
+router.get("/", verifyAuth, async (req: any, res) => {
+  res.send(await Note.find({ userId: req.user._id }))
 })
 
-router.get("/:id", async (req, res) => {
-  console.log(req.params.id)
-  res.send(await Note.findById({ _id: req.params.id }))
+router.get("/:id", verifyAuth, async (req: any, res) => {
+  res.send(await Note.findById({ _id: req.params.id, userId: req.user._id }))
 })
 
-router.post("/", (req, res) => {
+router.post("/", verifyAuth, (req: any, res) => {
   const { error } = validateNote(req.body)
   if (error) {
     res.status(400).send(error.details[0].message)
@@ -24,6 +24,7 @@ router.post("/", (req, res) => {
     content: req.body.content,
     folder: req.body.folder,
     date: req.body.date,
+    userId: req.user._id,
   })
   note.save((err, noteItem) => {
     if (err) {
@@ -34,33 +35,68 @@ router.post("/", (req, res) => {
   })
 })
 
-router.put("/:id", async (req, res) => {
-  const { error } = validateNote(req.body)
-  if (error) {
-    res.status(400).send(error.details[0].message)
-    return
+router.put("/", verifyAuth, async (req: any, res) => {
+  if (!Array.isArray(req.body.docs) || !Array.isArray(req.body.deletedIds)) {
+    return res.status(400).send("Body args aren't arrays")
   }
-
-  const updateRes = await Note.update(
-    { _id: req.params.id },
-    { title: req.body.title }
-  )
-
-  res.send({
-    modified: updateRes.nModified,
-    matched: updateRes.n,
-  })
+  try {
+    req.body.docs.forEach(async (note: any) => {
+      const { error } = validateNote(note)
+      if (error) {
+        console.log(error)
+        return
+      }
+      await Note.updateOne(
+        { _id: note._id, userId: req.user._id },
+        {
+          title: note.title,
+          content: note.content,
+          folder: note.folder,
+          date: note.date,
+        },
+        { upsert: true }
+      )
+    })
+    Note.deleteMany(
+      {
+        _id: {
+          $in: req.body.deletedIds,
+        },
+        userId: req.user._id,
+      },
+      error => {
+        if (error) {
+          console.log(error)
+          res.status(400).send(error.message)
+        } else {
+          res.status(200).send("Yep")
+        }
+      }
+    )
+  } catch (error) {
+    res.status(400).send(error.message)
+  }
 })
 
-router.delete("/:id", (req, res) => {
-  console.log(req.params.id)
-  Note.findOneAndRemove({ _id: req.params.id }, (error, docs) => {
-    if (error) {
-      res.status(400).send(error.message)
-    } else {
-      res.status(200).send(docs)
+router.delete("/", verifyAuth, (req: any, res) => {
+  if (!Array.isArray(req.body.ids)) {
+    return res.status(400).send("Body arg 'ids' isn't array")
+  }
+  Note.deleteMany(
+    {
+      _id: {
+        $in: req.body.ids,
+      },
+      userId: req.user._id,
+    },
+    error => {
+      if (error) {
+        res.status(400).send(error.message)
+      } else {
+        res.status(200).send("Yep")
+      }
     }
-  })
+  )
 })
 
 export default router
