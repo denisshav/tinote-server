@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken"
 
 export const verifyAuth = (req: any, res: any, next: any) => {
-  const {auth} = req.query
+  const { auth } = req.query
   if (!auth) {
     return res.status(401).send("Access Denied")
   }
@@ -11,6 +11,6 @@ export const verifyAuth = (req: any, res: any, next: any) => {
     req.user = verified
     next()
   } catch (error) {
-    res.status(400).send("Invalid Token")
+    res.status(401).send("Access Denied")
   }
 }

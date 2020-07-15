@@ -3,6 +3,7 @@ import User from "../../../models/User"
 import { registerValidation, loginValidation } from "../../../validation"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcryptjs"
+import { verifyAuth } from "./verifyToken"
 const router = Router()
 
 router.post("/register", async (req, res) => {
@@ -34,6 +35,10 @@ router.post("/register", async (req, res) => {
   } catch (err) {
     res.status(400).send(err)
   }
+})
+
+router.post("/verify", verifyAuth,async (req, res) => {
+  res.status(200).send("Yep")
 })
 
 router.post("/login", async (req, res) => {
