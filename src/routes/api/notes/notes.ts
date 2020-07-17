@@ -3,6 +3,8 @@ import { validateNote } from "../../../validation"
 import Note from "../../../models/Note"
 import { verifyAuth } from "../user/verifyToken"
 
+import Emitter from "../events/Emitter"
+
 const router = Router()
 
 router.get("/", verifyAuth, async (req: any, res) => {
@@ -69,6 +71,7 @@ router.put("/", verifyAuth, async (req: any, res) => {
           console.log(error)
           res.status(400).send(error.message)
         } else {
+          Emitter.emit(req.user._id, {...req.body, type: "notes"})
           res.status(200).send("Yep")
         }
       }

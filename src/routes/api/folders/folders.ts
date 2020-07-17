@@ -2,6 +2,7 @@ import { Router } from "express"
 import { validateFolder } from "../../../validation"
 import Folder from "../../../models/Folder"
 import { verifyAuth } from "../user/verifyToken"
+import Emitter from "../events/Emitter"
 
 const router = Router()
 
@@ -68,6 +69,7 @@ router.put("/", verifyAuth, async (req: any, res) => {
           console.log(error)
           res.status(400).send(error.message)
         } else {
+          Emitter.emit(req.user._id, {...req.body, type: "folders"})
           res.status(200).send("Yep")
         }
       }
