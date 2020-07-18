@@ -43,6 +43,7 @@ router.post("/verify", verifyAuth, async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { error } = loginValidation(req.body)
+  console.log("login request")
   if (error) {
     console.log("login request error")
     console.log(req.body)

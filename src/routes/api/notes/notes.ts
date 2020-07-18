@@ -41,6 +41,9 @@ router.put("/", verifyAuth, async (req: any, res) => {
   if (!Array.isArray(req.body.docs) || !Array.isArray(req.body.deletedIds)) {
     return res.status(400).send("Body args aren't arrays")
   }
+  if (req.body.docs.length < 1 && req.body.deletedIds.length < 1 ) {
+    return res.status(200).send("Body is empty")
+  }
   try {
     req.body.docs.forEach(async (note: any) => {
       const { error } = validateNote(note)

@@ -39,6 +39,7 @@ app.use("/api", apiRoutes)
 app.use(cors())
 app.use('/static', express.static(__dirname + "/build/static"))
 app.get("/", (req, res) => res.sendFile(__dirname + "/build/index.html"))
+app.get("/tinote", (req, res) => res.sendFile(__dirname + "/build/index.html"))
 
 const httpServer = http.createServer(app)
 const httpsServer = https.createServer(credentials, app)
