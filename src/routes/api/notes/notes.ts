@@ -41,17 +41,18 @@ router.put("/", verifyAuth, async (req: any, res) => {
   if (!Array.isArray(req.body.docs) || !Array.isArray(req.body.deletedIds)) {
     return res.status(400).send("Body args aren't arrays")
   }
-  if (req.body.docs.length < 1 && req.body.deletedIds.length < 1 ) {
+  if (req.body.docs.length < 1 && req.body.deletedIds.length < 1) {
     return res.status(200).send("Body is empty")
   }
   try {
+    let nMod = req.body.deletedIds.length
     req.body.docs.forEach(async (note: any) => {
       const { error } = validateNote(note)
       if (error) {
         console.log(error)
         return
       }
-      await Note.updateOne(
+      nMod += await Note.updateOne(
         { _id: note._id, userId: req.user._id },
         {
           title: note.title,
@@ -61,7 +62,7 @@ router.put("/", verifyAuth, async (req: any, res) => {
         },
         { upsert: true }
       )
-    })
+    }).nModified
     Note.deleteMany(
       {
         _id: {
@@ -74,7 +75,9 @@ router.put("/", verifyAuth, async (req: any, res) => {
           console.log(error)
           res.status(400).send(error.message)
         } else {
-          Emitter.emit(req.user._id, {...req.body, type: "notes"})
+          if (nMod > 0) {
+            Emitter.emit(req.user._id, { ...req.body, type: "notes" })
+          }
           res.status(200).send("Yep")
         }
       }
