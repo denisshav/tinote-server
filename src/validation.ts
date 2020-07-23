@@ -21,7 +21,7 @@ export const loginValidation = (data: any) => {
 export const validateNote = (note: any, requiredId: boolean = false) => {
   const schema = {
     userId: Joi.string(),
-    __v: Joi.string(),
+    __v: Joi.any(),
     _id: requiredId ? Joi.string().required() : Joi.string(),
     title: Joi.string().min(3).required(),
     content: Joi.string().min(0).allow("").allow(null).required(),
@@ -34,7 +34,7 @@ export const validateNote = (note: any, requiredId: boolean = false) => {
 export const validateFolder = (folder: any, requiredId: boolean = false) => {
   const schema = {
     userId: Joi.string(),
-    __v: Joi.string(),
+    __v: Joi.any(),
     _id: requiredId ? Joi.string().required() : Joi.string(),
     name: Joi.string().min(3).required(),
     color: Joi.string().min(0).required(),

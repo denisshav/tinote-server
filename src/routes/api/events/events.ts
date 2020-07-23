@@ -1,6 +1,6 @@
 import { Router } from "express"
-import { verifyAuth } from "../user/verifyToken"
-import { subscribeOnEvent } from "./eventsSender"
+import { verifyAuth } from "../../../middleware/verifyToken"
+import { subscribeOnEvent } from "./events.handlers"
 
 const router = Router()
 

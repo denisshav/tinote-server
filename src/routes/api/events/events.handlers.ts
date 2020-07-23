@@ -1,4 +1,3 @@
-import redisClient from "../../../redis-instance"
 import Emitter from "./Emitter"
 
 export function subscribeOnEvent(req: any, res: any) {
