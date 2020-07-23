@@ -1,5 +1,4 @@
 import * as dotenv from "dotenv"
-
 dotenv.config()
 
 import fs from "fs"
@@ -17,6 +16,12 @@ const certificate = fs.readFileSync(__dirname + "/sslcert/server.cert", "utf8")
 const credentials = { key: privateKey, cert: certificate }
 
 // ============== mongoose ==========
+
+if (!process.env.DB_CONNECT) {
+  console.log("\x1b[31m%s\x1b[0m", "Wasn't provided DB_CONNECT env to mongoose")
+
+  throw new Error("Wasn't provided DB_CONNECT env to mongoose")
+}
 
 mongoose.connect(process.env.DB_CONNECT!, {
   useNewUrlParser: true,
@@ -37,7 +42,7 @@ app.use(bodyParser.json())
 
 app.use("/api", apiRoutes)
 app.use(cors())
-app.use('/static', express.static(__dirname + "/build/static"))
+app.use("/static", express.static(__dirname + "/build/static"))
 app.get("/", (req, res) => res.sendFile(__dirname + "/build/index.html"))
 app.get("/tinote", (req, res) => res.sendFile(__dirname + "/build/index.html"))
 
