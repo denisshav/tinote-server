@@ -54,6 +54,14 @@ function configExpress() {
   app.use(bodyParser.urlencoded({ extended: true }))
   app.use(bodyParser.json())
 
+  app.options("*", (req, res) => {
+    res.set("Access-Control-Allow-Origin", "*")
+    res.set("Access-Control-Allow-Methods", "GET, OPTIONS, POST, PUT")
+    res.set("Access-Control-Allow-Headers", "Content-Type")
+
+    res.send()
+  })
+
   app.use("/api", apiRoutes)
   app.use(cors())
   app.use("/static", express.static(__dirname + "/build/static"))
@@ -61,6 +69,7 @@ function configExpress() {
   app.get("/tinote", (req, res) =>
     res.sendFile(__dirname + "/build/index.html")
   )
+
   return app
 }
 

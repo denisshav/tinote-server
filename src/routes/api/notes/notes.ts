@@ -7,17 +7,18 @@ import {
   deleteNotes,
   addNote,
 } from "./notes.handlers"
+import { verifyCors } from "../../../middleware/corsMiddle"
 
 const router = Router()
 
-router.get("/", verifyAuth, getAllNotes)
+router.get("/", verifyCors, verifyAuth, getAllNotes)
 
-router.get("/:id", verifyAuth, getNoteById)
+router.get("/:id", verifyCors, verifyAuth, getNoteById)
 
-router.post("/", verifyAuth, addNote)
+router.post("/", verifyCors, verifyAuth, addNote)
 
-router.put("/", verifyAuth, updateAndDeleteNotes)
+router.put("/", verifyCors, verifyAuth, updateAndDeleteNotes)
 
-router.delete("/", verifyAuth, deleteNotes)
+router.delete("/", verifyCors, verifyAuth, deleteNotes)
 
 export default router

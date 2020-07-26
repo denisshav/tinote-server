@@ -7,17 +7,18 @@ import {
   addFolder,
   deleteFolders,
 } from "./folders.handlers"
+import { verifyCors } from "../../../middleware/corsMiddle"
 
 const router = Router()
 
-router.get("/", verifyAuth, getAllFolders)
+router.get("/", verifyCors, verifyAuth, getAllFolders)
 
-router.get("/:id", verifyAuth, getFolderById)
+router.get("/:id", verifyCors, verifyAuth, getFolderById)
 
-router.post("/", verifyAuth, addFolder)
+router.post("/", verifyCors, verifyAuth, addFolder)
 
-router.put("/", verifyAuth, updateAndDeleteFolder)
+router.put("/", verifyCors, verifyAuth, updateAndDeleteFolder)
 
-router.delete("/", verifyAuth, deleteFolders)
+router.delete("/", verifyCors, verifyAuth, deleteFolders)
 
 export default router
