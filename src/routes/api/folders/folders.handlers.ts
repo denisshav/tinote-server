@@ -4,11 +4,24 @@ import Folder from "../../../models/Folder"
 import Emitter from "../events/Emitter"
 
 export const getFolderById = async (req: any, res: Response<any>) => {
-  res.send(await Folder.find({ userId: req.user._id }))
+  if (!req.params.id) {
+    return res.status(400).send("No folder id provided")
+  }
+
+  const folders = await Folder.find({
+    _id: req.params.id,
+    userId: req.user._id,
+  })
+
+  if (folders && folders.length !== 0) {
+    return res.send(folders)
+  } else {
+    return res.status(400).send("No folder was found")
+  }
 }
 
 export const getAllFolders = async (req: any, res: Response<any>) => {
-  res.send(await Folder.findById({ _id: req.params.id, userId: req.user._id }))
+  res.send(await Folder.find({ userId: req.user._id }))
 }
 
 export const addFolder = (req: any, res: Response<any>) => {

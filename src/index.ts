@@ -9,20 +9,27 @@ import http from "http"
 import express from "express"
 import bodyParser from "body-parser"
 import cors from "cors"
-
 import mongoose from "mongoose"
+
 import apiRoutes from "./routes/api/api"
+
+const mode = process.env.SERVER_MODE || "development"
+
+console.log("\x1b[33m%s%s%s\x1b[0m", "[Server] Server run in ", mode, " mode")
 
 configMongoose()
 const app = configExpress()
 const httpServer = configAndRunHttpServer(app)
-const httpsServer = configAndRunHttpsServer(app)
+
+if (mode == "production") {
+  const httpsServer = configAndRunHttpsServer(app)
+}
 
 function configMongoose() {
   if (!process.env.DB_CONNECT) {
     console.log(
       "\x1b[31m%s\x1b[0m",
-      "Wasn't provided DB_CONNECT env to mongoose"
+      "[Server] Wasn't provided DB_CONNECT env to mongoose"
     )
 
     throw new Error("Wasn't provided DB_CONNECT env to mongoose")
@@ -36,8 +43,10 @@ function configMongoose() {
   const db = mongoose.connection
   db.on("error", console.error.bind(console, "connection error:"))
   db.once("open", function () {
-    console.log("Connected to MongoDB")
+    console.log("[Server] Connected to MongoDB")
   })
+
+  return db
 }
 
 function configExpress() {
@@ -60,7 +69,7 @@ function configAndRunHttpServer(app: any) {
 
   const port = process.env.PORT || 8080
   httpServer.listen(port, () =>
-    console.log(`Listening http on port ${port}...`)
+    console.log(`[Server] Listening http on port ${port}...`)
   )
 
   return httpServer
@@ -75,7 +84,7 @@ function configAndRunHttpsServer(app: any) {
 
   const portHttps = process.env.PORT_HTTPS || 8443
   httpsServer.listen(portHttps, () =>
-    console.log(`Listening https on port ${portHttps}...`)
+    console.log(`[Server] Listening https on port ${portHttps}...`)
   )
 
   return httpsServer

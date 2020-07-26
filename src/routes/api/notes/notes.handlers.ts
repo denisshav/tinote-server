@@ -5,11 +5,21 @@ import { validateNote } from "../../../validation"
 import Emitter from "../events/Emitter"
 
 export const getNoteById = async (req: any, res: Response<any>) => {
-  res.send(await Note.find({ userId: req.user._id }))
+  if (!req.params.id) {
+    return res.status(400).send("No note id provided")
+  }
+
+  const note = await Note.find({ _id: req.params.id, userId: req.user._id })
+
+  if (note && note.length !== 0) {
+    return res.send(note)
+  } else {
+    return res.status(400).send("No note was found")
+  }
 }
 
 export const getAllNotes = async (req: any, res: Response<any>) => {
-  res.send(await Note.findById({ _id: req.params.id, userId: req.user._id }))
+  res.send(await Note.find({ userId: req.user._id }))
 }
 
 export const addNote = (req: any, res: Response<any>) => {
